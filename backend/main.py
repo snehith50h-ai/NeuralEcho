@@ -23,10 +23,14 @@ app = FastAPI(title="NeuralEcho API")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_credentials=True,
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+@app.get("/")
+def health_check():
+    return {"status": "NeuralEcho Backend is Live!"}
 
 # Global model pipeline
 clinical_pipeline = None
