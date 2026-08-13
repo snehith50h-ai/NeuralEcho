@@ -15,6 +15,7 @@ function App() {
   const [analyzer, setAnalyzer] = useState(null);
   const [isRecording, setIsRecording] = useState(false);
   const [blobs, setBlobs] = useState({ vowel: null, ddk: null });
+  const [dashboardMode, setDashboardMode] = useState('patient'); // 'patient' or 'triage'
 
   const mockPastData = [
     { visit: "Jan", risk: 0.2 },
@@ -65,6 +66,14 @@ function App() {
         setBatteryStep(0);
       }
   };
+
+  const triagePatients = [
+    { id: "PT-8832", name: "Arthur P.", age: 72, risk: 0.88, trend: "+0.15", status: "Critical Review", condition: "Parkinson's", lastTest: "2 hrs ago" },
+    { id: "PT-5520", name: "Robert K.", age: 81, risk: 0.74, trend: "+0.20", status: "High Risk", condition: "Parkinson's", lastTest: "10 mins ago" },
+    { id: "PT-9011", name: "Maria S.", age: 65, risk: 0.65, trend: "+0.05", status: "Moderate", condition: "ALS", lastTest: "1 day ago" },
+    { id: "PT-1120", name: "James L.", age: 78, risk: 0.42, trend: "-0.02", status: "Stable", condition: "MCI", lastTest: "3 days ago" },
+    { id: "PT-4491", name: "Evelyn T.", age: 69, risk: 0.28, trend: "0.00", status: "Normal", condition: "Baseline", lastTest: "1 week ago" },
+  ];
 
   const staggerContainer = {
     hidden: { opacity: 0 },
@@ -281,6 +290,12 @@ function App() {
 
             {/* STAGE 4: CLINICAL WORKSTATION (The Dashboard) */}
             <div className="w-full min-h-[100vh] flex flex-col justify-center p-8 max-w-[1600px] mx-auto pointer-events-auto">
+                <div className="flex justify-center mb-8 space-x-4">
+                  <button onClick={() => setDashboardMode('patient')} className={`px-6 py-2 rounded-full font-mono text-xs tracking-widest uppercase transition-all ${dashboardMode === 'patient' ? 'bg-teal-500 text-black shadow-[0_0_15px_rgba(45,212,191,0.5)]' : 'bg-black/40 border border-white/20 text-slate-400 hover:text-white'}`}>Single Patient View</button>
+                  <button onClick={() => setDashboardMode('triage')} className={`px-6 py-2 rounded-full font-mono text-xs tracking-widest uppercase transition-all ${dashboardMode === 'triage' ? 'bg-orange-500 text-black shadow-[0_0_15px_rgba(249,115,22,0.5)]' : 'bg-black/40 border border-white/20 text-slate-400 hover:text-white'}`}>Clinician Fleet Triage</button>
+                </div>
+                
+                {dashboardMode === 'patient' ? (
                 <motion.div 
                   variants={staggerContainer}
                   initial="hidden"
@@ -362,6 +377,26 @@ function App() {
                                 {analysisResult.risk_scores.phonatory_motor.toFixed(2)}
                               </div>
                             </div>
+                            
+                            <div className="w-full mt-6 space-y-2 relative z-10">
+                                <div className="flex justify-between text-[8px] font-mono uppercase text-slate-400">
+                                    <span>CPP Variance Weight</span>
+                                    <span className="text-teal-400">68%</span>
+                                </div>
+                                <div className="w-full h-1 bg-white/10 rounded-full overflow-hidden">
+                                    <div className="h-full bg-teal-500 w-[68%]"></div>
+                                </div>
+                                <div className="flex justify-between text-[8px] font-mono uppercase text-slate-400 mt-2">
+                                    <span>F0 Instability Weight</span>
+                                    <span className="text-orange-400">32%</span>
+                                </div>
+                                <div className="w-full h-1 bg-white/10 rounded-full overflow-hidden">
+                                    <div className="h-full bg-orange-500 w-[32%]"></div>
+                                </div>
+                                <div className="text-[9px] font-mono text-center text-slate-500 mt-3 border-t border-white/10 pt-2">
+                                   Scikit-Learn ML Deterministic Trace
+                                </div>
+                            </div>
                           </div>
 
                           <div className="md:col-span-2 grid grid-cols-2 gap-6">
@@ -410,6 +445,51 @@ function App() {
                     )}
                   </motion.div>
                 </motion.div>
+                ) : (
+                  <motion.div variants={fadeUp} initial="hidden" animate="show" className="w-full max-w-5xl mx-auto backdrop-blur-xl bg-black/40 p-8 rounded-3xl border border-white/10 shadow-[0_8px_32px_0_rgba(0,0,0,0.5)]">
+                     <div className="flex justify-between items-center mb-8">
+                        <div>
+                           <h2 className="text-xl font-mono tracking-widest uppercase text-white">Fleet Risk Triage</h2>
+                           <p className="text-slate-500 text-xs font-mono mt-1">Live active monitoring across 1,204 registered patients</p>
+                        </div>
+                        <div className="flex items-center space-x-2 text-xs font-mono text-teal-400 border border-teal-500/30 bg-teal-500/10 px-3 py-1 rounded">
+                           <div className="w-2 h-2 rounded-full bg-teal-400 animate-pulse"></div>
+                           <span>Live Sync Active</span>
+                        </div>
+                     </div>
+                     
+                     <div className="w-full overflow-hidden rounded-xl border border-white/10 bg-black/20">
+                        <table className="w-full text-left font-mono text-sm">
+                           <thead className="bg-white/5 text-slate-400 text-xs">
+                              <tr>
+                                 <th className="p-4 font-normal">Patient ID</th>
+                                 <th className="p-4 font-normal">Condition</th>
+                                 <th className="p-4 font-normal">Last Test</th>
+                                 <th className="p-4 font-normal text-right">Risk Score</th>
+                                 <th className="p-4 font-normal text-right">Trend</th>
+                                 <th className="p-4 font-normal text-center">Status</th>
+                              </tr>
+                           </thead>
+                           <tbody className="divide-y divide-white/10 text-slate-200">
+                              {triagePatients.map((p, i) => (
+                                 <tr key={i} className="hover:bg-white/5 transition-colors cursor-pointer">
+                                    <td className="p-4 text-white font-bold">{p.id} <span className="block text-slate-500 text-[10px] font-normal">{p.name}</span></td>
+                                    <td className="p-4 text-slate-400">{p.condition}</td>
+                                    <td className="p-4 text-slate-400">{p.lastTest}</td>
+                                    <td className="p-4 text-right font-bold text-white">{p.risk.toFixed(2)}</td>
+                                    <td className={`p-4 text-right ${p.trend.startsWith('+') ? 'text-red-400' : 'text-teal-400'}`}>{p.trend}</td>
+                                    <td className="p-4 text-center">
+                                       <span className={`px-2 py-1 rounded text-[10px] uppercase tracking-widest border ${p.risk > 0.7 ? 'bg-red-500/20 text-red-400 border-red-500/30' : p.risk > 0.4 ? 'bg-orange-500/20 text-orange-400 border-orange-500/30' : 'bg-teal-500/20 text-teal-400 border-teal-500/30'}`}>
+                                          {p.status}
+                                       </span>
+                                    </td>
+                                 </tr>
+                              ))}
+                           </tbody>
+                        </table>
+                     </div>
+                  </motion.div>
+                )}
             </div>
           </Scroll>
         </ScrollControls>
