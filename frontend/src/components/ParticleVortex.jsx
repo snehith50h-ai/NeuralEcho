@@ -23,49 +23,52 @@ varying float vRandom;
 void main() {
     vRandom = aRandom;
 
-    vec3 currentPos;
+    // 1. Calculate animated positions for ALL shapes continuously
     
-    // Smooth interpolation between shapes based on uProgress
+    // Black Hole
+    vec3 pBH = aPosBlackHole;
+    float radiusBH = length(pBH.xz);
+    float angle = atan(pBH.z, pBH.x);
+    angle += uTime * (0.2 + (1.0 / (radiusBH + 0.1))) * 0.1;
+    pBH.x = cos(angle) * radiusBH;
+    pBH.z = sin(angle) * radiusBH;
+    pBH.y += (sin(radiusBH * 10.0 - uTime * 2.0) * 0.1) * (1.0 - smoothstep(0.0, 2.0, radiusBH));
+
+    // DNA
+    vec3 pDNA = aPosDNA;
+    float twist = pDNA.y * 0.5 + uTime * 0.5;
+    float dx = pDNA.x * cos(twist) - pDNA.z * sin(twist);
+    float dz = pDNA.x * sin(twist) + pDNA.z * cos(twist);
+    pDNA.x = dx;
+    pDNA.z = dz;
+
+    // Wave
+    vec3 pWave = aPosWave;
+    pWave.y += sin(pWave.x * 2.0 + uTime) * 0.5 + cos(pWave.z * 2.0 + uTime) * 0.5;
+
+    // Grid
+    vec3 pGrid = aPosGrid;
+    pGrid += (aRandom - 0.5) * sin(uTime * 2.0 + aRandom * 10.0) * 0.1;
+
+    // Sphere
+    vec3 pSphere = aPosSphere;
+    float audioDisplacement = uAudioIntensity * aRandom * 3.0;
+    float wobble = sin(uTime * 2.0 + length(pSphere.xz) * 5.0 + aRandom * 10.0) * 0.1;
+    pSphere += normalize(pSphere) * (audioDisplacement + wobble);
+
+    // 2. Smoothly mix between the fully animated shapes
+    vec3 currentPos;
     if (uProgress < 1.0) {
-        currentPos = mix(aPosBlackHole, aPosDNA, smoothstep(0.0, 1.0, uProgress));
+        currentPos = mix(pBH, pDNA, smoothstep(0.0, 1.0, uProgress));
     } else if (uProgress < 2.0) {
-        currentPos = mix(aPosDNA, aPosWave, smoothstep(1.0, 2.0, uProgress));
+        currentPos = mix(pDNA, pWave, smoothstep(1.0, 2.0, uProgress));
     } else if (uProgress < 3.0) {
-        currentPos = mix(aPosWave, aPosGrid, smoothstep(2.0, 3.0, uProgress));
+        currentPos = mix(pWave, pGrid, smoothstep(2.0, 3.0, uProgress));
     } else {
-        currentPos = mix(aPosGrid, aPosSphere, smoothstep(3.0, 4.0, uProgress));
+        currentPos = mix(pGrid, pSphere, smoothstep(3.0, 4.0, uProgress));
     }
 
     vec3 newPosition = currentPos;
-    float radius = length(newPosition.xz);
-    
-    // Add specific animation logic based on current stage
-    if (uProgress < 1.0) {
-        // Black Hole rotation
-        float angle = atan(newPosition.z, newPosition.x);
-        angle += uTime * (0.2 + (1.0 / (radius + 0.1))) * 0.1;
-        newPosition.x = cos(angle) * radius;
-        newPosition.z = sin(angle) * radius;
-        newPosition.y += (sin(radius * 10.0 - uTime * 2.0) * 0.1) * (1.0 - smoothstep(0.0, 2.0, radius));
-    } else if (uProgress >= 1.0 && uProgress < 2.0) {
-        // DNA twist
-        float twist = newPosition.y * 0.5 + uTime * 0.5;
-        float x = newPosition.x * cos(twist) - newPosition.z * sin(twist);
-        float z = newPosition.x * sin(twist) + newPosition.z * cos(twist);
-        newPosition.x = x;
-        newPosition.z = z;
-    } else if (uProgress >= 2.0 && uProgress < 3.0) {
-        // Wave Undulation
-        newPosition.y += sin(newPosition.x * 2.0 + uTime) * 0.5 + cos(newPosition.z * 2.0 + uTime) * 0.5;
-    } else if (uProgress >= 3.0 && uProgress < 4.0) {
-        // Grid subtle pulse
-        newPosition += (aRandom - 0.5) * sin(uTime * 2.0 + aRandom * 10.0) * 0.1;
-    } else if (uProgress >= 4.0) {
-        // Audio Reactive Sphere
-        float audioDisplacement = uAudioIntensity * aRandom * 3.0;
-        float wobble = sin(uTime * 2.0 + radius * 5.0 + aRandom * 10.0) * 0.1;
-        newPosition += normalize(newPosition) * (audioDisplacement + wobble);
-    }
     
     // Add global slight wobble
     newPosition.y += sin(uTime + aRandom * 10.0) * 0.05;
@@ -213,27 +216,31 @@ export default function ParticleVortex({ analyzer, isRecording }) {
 
     const prog = materialRef.current.uniforms.uProgress.value;
     if (pointsRef.current) {
+        // Calculate a perfectly smooth target X rotation based on progress
+        let targetRotX = 0;
         if (prog < 1.0) {
-            pointsRef.current.rotation.y = time * 0.05;
-            pointsRef.current.rotation.z = time * 0.02;
-            pointsRef.current.rotation.x = 0.4;
+            targetRotX = THREE.MathUtils.lerp(0.4, 0.2, prog);
         } else if (prog < 2.0) {
-            pointsRef.current.rotation.x = THREE.MathUtils.lerp(pointsRef.current.rotation.x, 0.2, 0.05);
-            pointsRef.current.rotation.y = time * 0.1;
-            pointsRef.current.rotation.z = 0;
+            targetRotX = THREE.MathUtils.lerp(0.2, 0.8, prog - 1.0);
         } else if (prog < 3.0) {
-            pointsRef.current.rotation.x = THREE.MathUtils.lerp(pointsRef.current.rotation.x, 0.8, 0.05);
-            pointsRef.current.rotation.y = time * 0.05;
-            pointsRef.current.rotation.z = 0;
+            targetRotX = THREE.MathUtils.lerp(0.8, 0.1, prog - 2.0);
         } else if (prog < 4.0) {
-            pointsRef.current.rotation.x = THREE.MathUtils.lerp(pointsRef.current.rotation.x, 0.1, 0.05);
-            pointsRef.current.rotation.y = time * 0.02;
-            pointsRef.current.rotation.z = 0;
+            targetRotX = THREE.MathUtils.lerp(0.1, 0.0, prog - 3.0);
         } else {
-            pointsRef.current.rotation.x = THREE.MathUtils.lerp(pointsRef.current.rotation.x, 0.0, 0.05);
-            pointsRef.current.rotation.y = time * 0.1;
-            pointsRef.current.rotation.z = 0;
+            targetRotX = 0.0;
         }
+
+        // Lerp towards the smooth target X rotation
+        pointsRef.current.rotation.x = THREE.MathUtils.lerp(pointsRef.current.rotation.x, targetRotX, 0.1);
+        
+        // Add a continuous, never-snapping Y rotation that speeds up slightly at stage 2 and 4
+        let speedY = 0.001;
+        if (prog >= 1.0 && prog < 2.0) speedY = 0.002;
+        if (prog >= 3.0) speedY = 0.003;
+        pointsRef.current.rotation.y += speedY;
+        
+        // Gently align Z
+        pointsRef.current.rotation.z = THREE.MathUtils.lerp(pointsRef.current.rotation.z, (prog < 1.0) ? time * 0.01 : 0, 0.05);
     }
 
     let audioIntensity = 0;
