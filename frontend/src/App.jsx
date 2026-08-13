@@ -47,22 +47,21 @@ function App() {
         formData.append('file', fileToAnalyze, 'upload.wav');
         formData.append('test_type', 'aggregated');
         
-        const res = await fetch('http://localhost:8000/api/analyze-voice', {
+        const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+        const res = await fetch(`${API_URL}/api/analyze-voice`, {
           method: 'POST',
           body: formData,
         });
         if (!res.ok) {
-           const errText = await res.text();
-           alert(`Analysis Failed: ${errText}`);
-           setBatteryStep(0);
-           return;
+           const errData = await res.json().catch(() => ({}));
+           throw new Error(errData.detail || `Server returned ${res.status}`);
         }
         const data = await res.json();
         setAnalysisResult(data);
         setBatteryStep(5);
       } catch (err) {
         console.error(err);
-        alert("Failed to connect to backend API.");
+        alert(`Analysis Error: ${err.message}`);
         setBatteryStep(0);
       }
   };
