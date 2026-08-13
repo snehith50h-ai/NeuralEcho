@@ -425,7 +425,7 @@ function App() {
                           </div>
                           <div className="p-6 relative">
                             <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_4px,3px_100%] opacity-20 z-10"></div>
-                            <div className="font-mono text-xs md:text-sm text-teal-50 shadow-inner leading-relaxed whitespace-pre-wrap max-h-[400px] overflow-y-auto custom-scrollbar relative z-20">
+                            <div className="font-mono text-xs md:text-sm text-teal-50 shadow-inner leading-relaxed whitespace-pre-wrap h-[220px] overflow-y-auto custom-scrollbar relative z-20">
                               {analysisResult.soap_note}
                             </div>
                           </div>
