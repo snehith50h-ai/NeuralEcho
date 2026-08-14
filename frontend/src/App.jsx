@@ -186,7 +186,7 @@ function App() {
       <Canvas camera={{ position: [0, 2, 10], fov: 60 }} style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', zIndex: 0 }}>
         <color attach="background" args={['#000000']} />
         
-        <ScrollControls pages={6} damping={0.2}>
+        <ScrollControls pages={5.5} damping={0.2}>
           <ParticleVortex analyzer={analyzer} isRecording={isRecording} />
           
           <Scroll html style={{ width: '100vw' }}>
@@ -492,26 +492,26 @@ function App() {
                   </motion.div>
                 )}
                 
-                {/* CRAZY FOOTER */}
+                {/* CRAZY FOOTER - SCALED DOWN */}
                 <motion.div 
-                  initial={{ opacity: 0, y: 50, scale: 0.9 }}
-                  whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                  transition={{ duration: 1, type: "spring", bounce: 0.5 }}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 1, type: "spring", bounce: 0.4 }}
                   viewport={{ once: false }}
-                  className="w-full mt-32 pt-24 pb-48 flex flex-col justify-center items-center text-center border-t border-white/10 relative overflow-hidden group"
+                  className="w-full mt-24 pt-16 pb-24 flex flex-col justify-center items-center text-center border-t border-white/10 relative overflow-hidden group"
                 >
-                  <div className="absolute inset-0 bg-gradient-to-t from-teal-500/10 via-orange-500/5 to-transparent pointer-events-none blur-3xl opacity-50 group-hover:opacity-100 transition-opacity duration-1000"></div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-teal-500/5 via-orange-500/5 to-transparent pointer-events-none blur-2xl opacity-50 group-hover:opacity-100 transition-opacity duration-1000"></div>
                   
-                  <h2 className="text-slate-500 font-mono text-2xl md:text-4xl tracking-[0.4em] uppercase mb-8 font-light relative z-10">
+                  <h2 className="text-slate-500 font-mono text-lg md:text-xl tracking-[0.3em] uppercase mb-6 font-light relative z-10">
                     Engineered by
-                    <span className="block mt-6 text-6xl md:text-9xl font-black text-transparent bg-clip-text bg-gradient-to-r from-teal-300 via-teal-500 to-orange-400 drop-shadow-[0_0_40px_rgba(45,212,191,0.6)] animate-pulse hover:scale-110 hover:drop-shadow-[0_0_80px_rgba(45,212,191,1)] transition-all duration-500 cursor-crosshair">
+                    <span className="block mt-4 text-4xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-teal-300 via-teal-500 to-orange-400 drop-shadow-[0_0_20px_rgba(45,212,191,0.4)] animate-pulse hover:scale-105 hover:drop-shadow-[0_0_40px_rgba(45,212,191,0.8)] transition-all duration-500 cursor-crosshair">
                       TEAM ECHO
                     </span>
                   </h2>
                   
-                  <div className="flex flex-wrap justify-center gap-6 mt-12 relative z-10">
+                  <div className="flex flex-wrap justify-center gap-4 mt-8 relative z-10">
                      {['Snehith', 'Jishnu', 'Adarsh Wesly'].map((name, i) => (
-                       <span key={i} className="px-8 py-3 rounded-full border border-white/20 bg-black/60 backdrop-blur-xl text-white font-mono tracking-[0.2em] uppercase text-sm md:text-xl shadow-2xl hover:border-orange-400 hover:text-orange-300 hover:shadow-[0_0_30px_rgba(249,115,22,0.6)] hover:-translate-y-2 transition-all duration-300 cursor-pointer">
+                       <span key={i} className="px-6 py-2 rounded-full border border-white/20 bg-black/60 backdrop-blur-xl text-white font-mono tracking-[0.1em] uppercase text-xs md:text-sm shadow-xl hover:border-orange-400 hover:text-orange-300 hover:shadow-[0_0_20px_rgba(249,115,22,0.4)] hover:-translate-y-1 transition-all duration-300 cursor-pointer">
                           {name}
                        </span>
                      ))}
