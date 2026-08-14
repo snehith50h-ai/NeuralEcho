@@ -490,6 +490,16 @@ function App() {
                      </div>
                   </motion.div>
                 )}
+
+                {/* FOOTER */}
+                <div className="w-full py-12 mt-24 flex flex-col justify-center items-center text-center border-t border-white/10">
+                  <p className="text-slate-500 font-mono text-sm tracking-widest uppercase">
+                    Developed by <span className="text-teal-400 font-bold drop-shadow-[0_0_10px_rgba(45,212,191,0.5)]">TEAM ECHO</span>
+                  </p>
+                  <p className="text-slate-600 font-mono text-xs mt-2 tracking-widest uppercase">
+                    Snehith • Jishnu • Adarsh • Wesly
+                  </p>
+                </div>
             </div>
           </Scroll>
         </ScrollControls>
