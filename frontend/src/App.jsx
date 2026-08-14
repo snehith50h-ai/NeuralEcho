@@ -182,10 +182,20 @@ function App() {
          </div>
       </header>
 
+      {/* Fixed Footer */}
+      <footer className="fixed bottom-0 left-0 right-0 p-6 flex flex-col md:flex-row justify-between items-center z-50 pointer-events-none mix-blend-difference opacity-80">
+         <div className="font-mono text-[10px] uppercase tracking-widest text-slate-300 mb-2 md:mb-0">
+            Developed by <span className="text-teal-400 font-bold drop-shadow-[0_0_10px_rgba(45,212,191,0.5)]">TEAM ECHO</span>
+         </div>
+         <div className="font-mono text-[10px] uppercase tracking-widest text-slate-400">
+            Snehith • Jishnu • Adarsh Wesly
+         </div>
+      </footer>
+
       <Canvas camera={{ position: [0, 2, 10], fov: 60 }} style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', zIndex: 0 }}>
         <color attach="background" args={['#000000']} />
         
-        <ScrollControls pages={5.2} damping={0.2}>
+        <ScrollControls pages={5} damping={0.2}>
           <ParticleVortex analyzer={analyzer} isRecording={isRecording} />
           
           <Scroll html style={{ width: '100vw' }}>
@@ -490,16 +500,6 @@ function App() {
                      </div>
                   </motion.div>
                 )}
-
-                {/* FOOTER */}
-                <div className="w-full py-12 mt-24 flex flex-col justify-center items-center text-center border-t border-white/10">
-                  <p className="text-slate-500 font-mono text-sm tracking-widest uppercase">
-                    Developed by <span className="text-teal-400 font-bold drop-shadow-[0_0_10px_rgba(45,212,191,0.5)]">TEAM ECHO</span>
-                  </p>
-                  <p className="text-slate-600 font-mono text-xs mt-2 tracking-widest uppercase">
-                    Snehith • Jishnu • Adarsh • Wesly
-                  </p>
-                </div>
             </div>
           </Scroll>
         </ScrollControls>
