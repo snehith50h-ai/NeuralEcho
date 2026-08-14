@@ -185,7 +185,7 @@ function App() {
       <Canvas camera={{ position: [0, 2, 10], fov: 60 }} style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', zIndex: 0 }}>
         <color attach="background" args={['#000000']} />
         
-        <ScrollControls pages={5} damping={0.2}>
+        <ScrollControls pages={5.2} damping={0.2}>
           <ParticleVortex analyzer={analyzer} isRecording={isRecording} />
           
           <Scroll html style={{ width: '100vw' }}>
