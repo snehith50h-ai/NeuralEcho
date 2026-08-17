@@ -80,29 +80,35 @@ def extract_features(audio_bytes: bytes) -> Dict[str, float]:
         pitch = sound.to_pitch()
         f0_values = pitch.selected_array['frequency']
         f0_values = f0_values[f0_values > 0]
-        mean_f0 = float(np.mean(f0_values)) if len(f0_values) > 0 else 120.0
+        
+        if len(f0_values) == 0:
+            raise ValueError("AUDIO_QUALITY_GATE_FAILED: No voice detected. Please speak clearly into the microphone.")
+            
+        mean_f0 = float(np.mean(f0_values))
         
         try:
             cepstrogram = parselmouth.praat.call(sound, 'To PowerCepstrogram', 60, 0.002, 5000, 50)
             cpps = parselmouth.praat.call(cepstrogram, 'Get CPPS', 'yes', 0.01, 0.001, 60.0, 330.0, 0.05, 'Parabolic', 0.001, 0.0, 'Straight', 'Robust')
-        except Exception:
-            cpps = 14.5
+            
+            if np.isnan(cpps):
+                raise ValueError("AUDIO_QUALITY_GATE_FAILED: Could not extract voice clarity. Please ensure you are speaking the requested vowels.")
+        except Exception as e:
+            if "AUDIO_QUALITY_GATE_FAILED" in str(e):
+                raise e
+            raise ValueError("AUDIO_QUALITY_GATE_FAILED: Audio too noisy or no valid speech found.")
         
         return {
-            "CPP": float(cpps) if not np.isnan(cpps) else 14.5,
-            "F0": mean_f0 if not np.isnan(mean_f0) else 120.0
+            "CPP": float(cpps),
+            "F0": mean_f0
         }
     except ValueError as ve:
         if "AUDIO_QUALITY_GATE_FAILED" in str(ve):
             raise ve
         print(f"Error parsing audio: {ve}")
-        return {"CPP": 14.5, "F0": 120.0}
+        raise ValueError("AUDIO_QUALITY_GATE_FAILED: Invalid audio format.")
     except Exception as e:
         print(f"Error parsing audio: {e}")
-        return {
-            "CPP": 14.5,
-            "F0": 120.0
-        }
+        raise ValueError("AUDIO_QUALITY_GATE_FAILED: Processing failed. Please record again.")
 
 @app.post("/api/analyze-voice")
 async def analyze_voice(file: UploadFile = File(...), test_type: str = Form("sustained_ah")):
