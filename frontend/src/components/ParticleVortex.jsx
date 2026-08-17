@@ -119,7 +119,7 @@ export default function ParticleVortex({ analyzer, isRecording }) {
   const dataArray = useRef(new Uint8Array(256));
   const scroll = useScroll();
 
-  const particleCount = 60000;
+  const particleCount = 35000; // Lowered from 60000 for better laptop performance
 
   const [
     posBlackHole,

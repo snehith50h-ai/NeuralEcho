@@ -13,7 +13,7 @@ load_dotenv()
 from imblearn.pipeline import Pipeline  # type: ignore
 from imblearn.over_sampling import SMOTE  # type: ignore
 from sklearn.feature_selection import SelectKBest, f_classif  # type: ignore
-from sklearn.neural_network import MLPClassifier  # type: ignore
+from sklearn.linear_model import LogisticRegression  # type: ignore
 from sklearn.preprocessing import StandardScaler  # type: ignore
 
 from llm.graph import generate_soap_note
@@ -35,49 +35,21 @@ def health_check():
 # Global model pipeline
 clinical_pipeline = None
 
+import joblib
+import os
+
 def setup_clinical_pipeline():
     """
-    Trains the FNN pipeline mimicking the Nature paper approach on startup.
-    Uses a synthetic dataset of healthy vs. PD biomarkers to demonstrate the architecture.
+    Loads the trained clinical model from disk.
     """
-    print("Initializing Clinical ML Pipeline (SMOTE + SelectKBest + FNN)...")
-    np.random.seed(42)
-    
-    # 1. Generate synthetic dataset simulating the UCI dataset distribution
-    # Features: [CPP, F0, Noise1, Noise2, Noise3]
-    # PD patients typically have lower CPP (e.g. 8-13) and more F0 variance.
-    # Healthy controls typically have higher CPP (e.g. 14-25).
-    
-    # Generate 150 PD samples (75% of dataset)
-    pd_cpp = np.random.normal(10.0, 2.0, 150)
-    pd_f0 = np.random.normal(130.0, 20.0, 150)
-    pd_noise = np.random.normal(0, 1, (150, 3))
-    pd_X = np.column_stack((pd_cpp, pd_f0, pd_noise))
-    pd_y = np.ones(150) # 1 = PD
-    
-    # Generate 50 Healthy samples (25% of dataset)
-    hc_cpp = np.random.normal(18.0, 2.5, 50)
-    hc_f0 = np.random.normal(120.0, 10.0, 50)
-    hc_noise = np.random.normal(0, 1, (50, 3))
-    hc_X = np.column_stack((hc_cpp, hc_f0, hc_noise))
-    hc_y = np.zeros(50) # 0 = Healthy
-    
-    X = np.vstack((pd_X, hc_X))
-    y = np.concatenate((pd_y, hc_y))
-    
-    # 2. Build Pipeline
-    # Using imblearn.pipeline.Pipeline so SMOTE is only applied during fit
-    pipeline = Pipeline([
-        ('scaler', StandardScaler()),
-        ('smote', SMOTE(random_state=42)),
-        ('feature_selection', SelectKBest(score_func=f_classif, k=2)), # Select top 2 predictive features (CPP, F0)
-        ('classifier', MLPClassifier(hidden_layer_sizes=(64, 32), max_iter=500, random_state=42, early_stopping=True))
-    ])
-    
-    # 3. Train
-    pipeline.fit(X, y)
-    print("Clinical ML Pipeline ready.")
-    return pipeline
+    print("Loading Clinical ML Pipeline...")
+    model_path = os.path.join(os.path.dirname(__file__), "clinical_model.pkl")
+    if os.path.exists(model_path):
+        pipeline = joblib.load(model_path)
+        print("Clinical ML Pipeline loaded successfully.")
+        return pipeline
+    else:
+        raise RuntimeError(f"Model file not found at {model_path}. Please run train_model.py first.")
 
 @app.on_event("startup")
 def startup_event():

@@ -183,7 +183,7 @@ function App() {
       </header>
 
 
-      <Canvas camera={{ position: [0, 2, 10], fov: 60 }} style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', zIndex: 0 }}>
+      <Canvas dpr={[1, 1.5]} gl={{ powerPreference: 'high-performance', antialias: false }} camera={{ position: [0, 2, 10], fov: 60 }} style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', zIndex: 0 }}>
         <color attach="background" args={['#000000']} />
         
         <ScrollControls pages={6} damping={0.2}>
